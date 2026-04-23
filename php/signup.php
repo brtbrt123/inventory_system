@@ -14,7 +14,9 @@ if ($data) {
     if ($check->num_rows > 0) {
         echo json_encode(["status" => "error", "message" => "Username taken."]);
     } else {
-        $sql = "INSERT INTO users (username, password, fullname) VALUES ('$username', '$password', '$fullname')";
+        // Update your SQL query inside the signup logic
+        $sql = "INSERT INTO users (fullname, username, password, profile_pic) 
+                VALUES ('$fullname', '$username', '$password', 'profile_C.jpg')";
         if ($conn->query($sql) === TRUE) {
             echo json_encode(["status" => "success", "message" => "Account created!"]);
         } else {

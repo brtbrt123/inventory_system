@@ -64,11 +64,16 @@
                 <div class="header-right">
                     <div class="user-info">
                         <div class="user-avatar">
-                            <img src="img/profile_C.jpg" alt="Admin" id="userPhoto">
+                            <img src="img/profile_C.jpg" alt="Admin" id="headerProfilePic">
                         </div>
-                        <div>
-                            <div><strong>Admin User</strong></div>
-                            <small style="color: #64748b;">Inventory Manager</small>
+                        <div style="display: flex; flex-direction: column; justify-content: center;">
+                            <div><strong id="userFullName">Admin User</strong></div>
+                            <small id="userRole" style="color: #64748b;">@username</small>
+                            
+                            <label for="profileUpload" style="cursor: pointer; font-size: 0.75rem; color: #3b82f6; margin-top: 2px; text-decoration: underline;">
+                                Change Photo
+                            </label>
+                            <input type="file" id="profileUpload" accept="image/*" style="display: none;">
                         </div>
                     </div>
                 </div>

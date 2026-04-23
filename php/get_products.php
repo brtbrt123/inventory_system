@@ -5,8 +5,11 @@ include 'db_connect.php';
 // 2. Tell the browser we are sending JSON data
 header('Content-Type: application/json');
 
-// 3. Write the SQL query to get all products
-$sql = "SELECT * FROM products ORDER BY id DESC";
+// Grab the user from the URL (sent by your JavaScript)
+$user = isset($_GET['user']) ? $conn->real_escape_string($_GET['user']) : '';
+
+// 3. Write the SQL query to get ONLY products owned by this user
+$sql = "SELECT * FROM products WHERE owner_username = '$user' ORDER BY id DESC";
 $result = $conn->query($sql);
 
 $products = [];
