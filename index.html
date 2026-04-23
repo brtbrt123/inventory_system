@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cabuyao Tech Inventory - Group 8</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2 id="authTitle">📦 Cabuyao Tech</h2>
+            <p id="authSubtitle">Login to your account (Grp 8)</p>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" placeholder="Enter username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn btn-add btn-login" style="width:100%; justify-content:center;">Login</button>
+                <p style="margin-top:15px; font-size:0.85rem;">Don't have an account? <a href="#" onclick="sys.toggleAuth(true)" style="color:var(--primary); font-weight:bold;">Sign Up</a></p>
+            </form>
+
+            <form id="signupForm" style="display:none;">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="regFullName" placeholder="Enter your name" required>
+                </div>
+                <div class="form-group">
+                    <label>New Username</label>
+                    <input type="text" id="regUsername" placeholder="Choose a username" required>
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" id="regPassword" placeholder="Create a password" required>
+                </div>
+                <button type="submit" class="btn btn-add" style="width:100%; justify-content:center; background-color:var(--success);">Create Account</button>
+                <p style="margin-top:15px; font-size:0.85rem;">Already have an account? <a href="#" onclick="sys.toggleAuth(false)" style="color:var(--primary); font-weight:bold;">Login</a></p>
+            </form>
+        </div>
+    </div>
+
+    <div id="appContainer">
+        <div class="sidebar">
+            <h2>📦 Group 8 Inventory</h2>
+            <div class="nav-section">
+                <a class="nav-item active" data-page="dashboard">🏠 Dashboard</a>
+                <a class="nav-item" data-page="inventory">📊 Manage Stock</a>
+                <a class="nav-item" data-page="purchaseOrders">🛒 Purchase Orders</a>
+                <a class="nav-item" data-page="reports">📈 Reports & Needs</a>
+                <a class="nav-item" data-page="settings">⚙️ Settings</a>
+            </div>
+            <a class="logout-btn" id="logoutBtn">🚪 Logout</a>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div><h3 style="color: #64748b; font-size: 0.9rem;">Cabuyao Tech System (Grp 8)</h3></div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <img src="img/profile_C.jpg" alt="Admin" id="userPhoto">
+                        </div>
+                        <div>
+                            <div><strong>Admin User</strong></div>
+                            <small style="color: #64748b;">Inventory Manager</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area" id="contentArea">
+                <div id="dashboardPage" class="page-content">
+                    <div class="page-title">Dashboard Overview</div>
+                    <div class="cards">
+                        <div class="card"><h3>Total Products</h3><div class="value" id="totalProducts">0</div></div>
+                        <div class="card warning"><h3>Low Stock Alerts</h3><div class="value" style="color: var(--warning);" id="lowStockCount">0</div></div>
+                        <div class="card info"><h3>Pending Orders</h3><div class="value" style="color: var(--info);" id="pendingPOCount">0</div></div>
+                        <div class="card danger"><h3>Total Value</h3><div class="value" id="totalValue">₱ 0.00</div></div>
+                    </div>
+                    <h3 style="margin-top: 30px; margin-bottom: 15px;">Recent Inventory Updates</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>Product</th><th>Supplier</th><th>Last Updated</th><th>Current Stock</th></tr></thead>
+                            <tbody id="recentActivityTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="inventoryPage" class="page-content" style="display: none;">
+                    <div class="page-title">Inventory Management</div>
+                    <div class="controls-bar">
+                        <button class="btn btn-add" id="openModalBtn">➕ Add New Product</button>
+                        <input type="text" id="searchInput" placeholder="Search by name...">
+                        <select id="categoryFilter">
+                            <option value="">All Categories</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Apparel">Apparel</option>
+                            <option value="Accessories">Accessories</option>
+                            <option value="Mobile">Mobile</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>ID</th><th>Product Name</th><th>Supplier</th><th>Stock Qty</th><th>Unit Price</th><th>Status</th><th>Actions</th></tr></thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="purchaseOrdersPage" class="page-content" style="display: none;">
+                    <div class="page-title">Purchase Orders</div>
+                    <p style="margin-bottom: 20px; color: #64748b;">Manage incoming stock from suppliers.</p>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>PO ID</th><th>Date Created</th><th>Product</th><th>Supplier</th><th>Order Qty</th><th>Status</th><th>Actions</th></tr></thead>
+                            <tbody id="poTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="reportsPage" class="page-content" style="display: none;">
+                    <div class="page-title">Reports & Restocking Needs</div>
+                    <div class="cards">
+                        <div class="card warning"><h3>Items Needing Restock</h3><div class="value" id="restockCount">0</div></div>
+                        <div class="card"><h3>Total Categories</h3><div class="value" id="totalCategories">0</div></div>
+                    </div>
+                    <h3 style="margin-top: 30px; margin-bottom: 15px; color: var(--danger);">⚠️ Restocking Needs (Low Stock)</h3>
+                    <div class="table-wrapper" style="border: 1px solid #fca5a5;">
+                        <table>
+                            <thead><tr><th>Product</th><th>Current Stock</th><th>Threshold</th><th>Supplier</th></tr></thead>
+                            <tbody id="restockTableBody"></tbody>
+                        </table>
+                    </div>
+                    <h3 style="margin-top: 30px; margin-bottom: 15px;">Category Distribution</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>Category</th><th>Product Count</th><th>Total Value</th></tr></thead>
+                            <tbody id="reportTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="settingsPage" class="page-content" style="display: none;">
+                    <div class="page-title">Settings</div>
+                    <div style="background: white; padding: 30px; border-radius: 8px;">
+                        <div class="form-group">
+                            <label>Low Stock Threshold (Quantity)</label>
+                            <input type="number" id="lowStockThreshold" value="10" min="1">
+                            <small>Products below this quantity trigger alerts.</small>
+                        </div>
+                        <button class="btn btn-delete" id="clearDataBtn">🗑️ Clear All System Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="productModal">
+        <div class="modal">
+            <h3 id="modalTitle">Add New Product</h3>
+            <form id="productForm">
+                <div class="form-group"><label>Product Name *</label><input type="text" id="productName" required></div>
+                <div class="form-group"><label>Supplier Name *</label><input type="text" id="supplier" required></div>
+                <div class="form-group">
+                    <label>Category *</label>
+                    <select id="category" required>
+                        <option value="">Select Category</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Apparel">Apparel</option>
+                        <option value="Accessories">Accessories</option>
+                        <option value="Mobile">Mobile</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group"><label>Stock Qty *</label><input type="number" id="quantity" min="0" required></div>
+                    <div class="form-group"><label>Unit Price (₱) *</label><input type="number" id="price" step="0.01" min="0" required></div>
+                </div>
+                <div class="form-group"><label>Description</label><textarea id="description" rows="2"></textarea></div>
+                <div class="modal-actions">
+                    <button type="button" class="close-modal" id="closeModalBtn">Cancel</button>
+                    <button type="submit" class="btn btn-add">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script src="js/script.js"></script>
+
+</body>
+</html>
