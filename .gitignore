@@ -1,0 +1,15 @@
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.log
+
+# Ignore dynamic product and user uploads
+img/admin_*
+img/bril_*
+img/prod_*
+img/*_[0-9]*.*
+
+# Keep the core design assets 
+!img/leaf-header-bg.png
+!img/default_product.png
+!img/profile_C.png
