@@ -1,24 +1,38 @@
 <?php
-include 'db_connect.php';
 header('Content-Type: application/json');
 
-$user = isset($_GET['user']) ? $conn->real_escape_string($_GET['user']) : '';
+$host = '127.0.0.1';
+$dbname = 'cabuyao_inventory_grp8';
+$db_username = 'root'; 
+$db_password = '';     
 
-// We JOIN with the products table so we can see the product name and supplier!
-$sql = "SELECT po.*, p.name AS product_name, p.supplier 
-        FROM purchase_orders po
-        JOIN products p ON po.product_id = p.id
-        WHERE p.owner_username = '$user'
-        ORDER BY po.po_id DESC";
-        
-$result = $conn->query($sql);
-$pos = [];
-
-if ($result && $result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        $pos[] = $row;
-    }
+try {
+    $conn = new PDO("mysql:host=$host;dbname=$dbname", $db_username, $db_password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    echo json_encode(['status' => 'error', 'message' => 'Database connection failed.']);
+    exit;
 }
-echo json_encode($pos);
-$conn->close();
+
+// Grab the current user from the URL
+$user = $_GET['user'] ?? '';
+
+try {
+    // UPDATED: Joined with products to get the name and supplier
+    // Uses the 'owner' column to filter records
+    $sql = "SELECT po.*, p.name as product_name, p.supplier 
+            FROM purchase_orders po
+            JOIN products p ON po.product_id = p.id
+            WHERE p.owner = ? 
+            ORDER BY po.po_id DESC";
+            
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$user]);
+    $pos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode($pos);
+
+} catch (Exception $e) {
+    echo json_encode(['status' => 'error', 'message' => 'Query failed: ' . $e->getMessage()]);
+}
 ?>

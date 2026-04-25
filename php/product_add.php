@@ -1,34 +1,60 @@
 <?php
-include 'db_connect.php';
 header('Content-Type: application/json');
 
-$data = json_decode(file_get_contents("php://input"), true);
+$host = '127.0.0.1';
+$dbname = 'cabuyao_inventory_grp8';
+$db_username = 'root'; 
+$db_password = '';     
 
-if ($data) {
-    $name = $conn->real_escape_string($data['name']);
-    $supplier = $conn->real_escape_string($data['supplier']);
-    
-    // 👉 CHANGE 1: We now grab the 'cat_id' number sent from JavaScript, not the word
-    $cat_id = (int)$data['cat_id']; 
-    
-    $quantity = (int)$data['quantity'];
-    $price = (float)$data['price'];
-    
-    // Catch the logged-in user
-    $owner = isset($data['owner']) ? $conn->real_escape_string($data['owner']) : '';
-
-    // 👉 CHANGE 2: The SQL now inserts into the 'cat_id' column without quotes (because it's a number)
-    $sql = "INSERT INTO products (name, supplier, cat_id, quantity, price, owner_username) 
-            VALUES ('$name', '$supplier', $cat_id, $quantity, $price, '$owner')";
-
-    if ($conn->query($sql) === TRUE) {
-        echo json_encode(["status" => "success", "message" => "Product added!"]);
-    } else {
-        // This will print the exact MySQL error to your Network tab if it fails again
-        echo json_encode(["status" => "error", "message" => "DB Error: " . $conn->error]);
-    }
-} else {
-    echo json_encode(["status" => "error", "message" => "No data received."]);
+try {
+    $conn = new PDO("mysql:host=$host;dbname=$dbname", $db_username, $db_password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    echo json_encode(['status' => 'error', 'message' => 'Database connection failed.']);
+    exit;
 }
-$conn->close();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Because we are sending FormData, we use $_POST instead of file_get_contents('php://input')
+    $name = $_POST['name'] ?? '';
+    $supplier = $_POST['supplier'] ?? '';
+    $cat_id = $_POST['cat_id'] ?? null;
+    $quantity = $_POST['quantity'] ?? 0;
+    $price = $_POST['price'] ?? 0;
+    $owner = $_POST['owner'] ?? '';
+    
+    // DEFAULT TO NULL if no image is uploaded
+    $imagePathForDb = null; 
+
+    // Handle the Image Upload if one exists
+    if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
+        $fileExtension = strtolower(pathinfo($_FILES['product_image']['name'], PATHINFO_EXTENSION));
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        
+        if (in_array($fileExtension, $allowedExtensions)) {
+            $newFileName = 'prod_' . time() . '_' . rand(100, 999) . '.' . $fileExtension;
+            $uploadFileDir = '../img/';
+            
+            if (!is_dir($uploadFileDir)) mkdir($uploadFileDir, 0777, true);
+            
+            if (move_uploaded_file($_FILES['product_image']['tmp_name'], $uploadFileDir . $newFileName)) {
+                $imagePathForDb = 'img/' . $newFileName;
+            }
+        }
+    }
+
+    if ($name && $cat_id) {
+        try {
+            // Include the new image_path column in our insert statement
+            $stmt = $conn->prepare("INSERT INTO products (image_path, name, supplier, cat_id, quantity, price, owner) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$imagePathForDb, $name, $supplier, $cat_id, $quantity, $price, $owner]);
+            
+            echo json_encode(['status' => 'success', 'message' => 'Product added successfully!']);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
+        }
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Required fields are missing.']);
+    }
+}
 ?>

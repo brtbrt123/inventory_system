@@ -112,7 +112,7 @@
                     </div>
                     <div class="table-wrapper">
                         <table>
-                            <thead><tr><th>ID</th><th>Product Name</th><th>Supplier</th><th>Stock Qty</th><th>Unit Price</th><th>Status</th><th>Actions</th></tr></thead>
+                            <thead><tr><th>ID</th><th>Image</th><th>Product Name</th><th>Supplier</th><th>Stock Qty</th><th>Unit Price</th><th>Status</th><th>Actions</th></tr></thead>
                             <tbody id="tableBody"></tbody>
                         </table>
                     </div>
@@ -212,6 +212,12 @@
             <h3 id="modalTitle">Add New Product</h3>
             <form id="productForm">
                 <div class="form-group"><label>Product Name *</label><input type="text" id="productName" required></div>
+                
+                <div class="form-group">
+                    <label><i class="fa-solid fa-image" style="color: #64748b;"></i> Product Image (Optional)</label>
+                    <input type="file" id="productImage" accept="image/*" style="padding: 5px; border: 1px dashed #cbd5e1;">
+                </div>
+
                 <div class="form-group"><label>Supplier Name *</label><input type="text" id="supplier" required></div>
                 <div class="form-group">
                     <label>Category *</label>

@@ -34,6 +34,20 @@ export class API {
             throw error;
         }
     }
+
+    // Add this right underneath your uploadProfile method
+    async addProductWithImage(formData) {
+        try {
+            const response = await fetch(`${this.baseUrl}product_add.php`, {
+                method: 'POST',
+                body: formData 
+            });
+            return await response.json();
+        } catch (error) {
+            console.error("Add Product Error:", error);
+            throw error;
+        }
+    }
     // -----------------------------------------------------
 
     login(data) { return this.request('user_login.php', data); }

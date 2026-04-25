@@ -37,7 +37,6 @@ class InventorySystem {
         const user = localStorage.getItem('currentUser');
         const pic = localStorage.getItem('currentProfilePic'); 
         
-        // FIX FOR "NULL" TEXT BUG
         if (document.getElementById('userFullName')) {
             document.getElementById('userFullName').textContent = (name && name !== 'null') ? name : "Admin User";
         }
@@ -45,7 +44,6 @@ class InventorySystem {
             document.getElementById('userRole').textContent = "@" + (user || "admin");
         }
         
-        // FIX FOR DEFAULT .WEBP IMAGE
         if (document.getElementById('headerProfilePic')) {
             if (pic && pic !== 'null' && pic !== 'undefined' && pic !== '') {
                 document.getElementById('headerProfilePic').src = pic;
@@ -109,6 +107,7 @@ class InventorySystem {
     editProduct(id) {
         const form = document.getElementById('productForm');
         form.reset(); 
+        document.getElementById('productImage').value = ''; // Clear file input
         
         if (id) {
             const p = this.products.find(x => x.id == id);
@@ -151,11 +150,19 @@ class InventorySystem {
     }
 
     async executeDelete() {
-        const result = await this.api.deleteProduct(this.deletingId);
-        if (result.status === 'success') {
-            this.ui.showToast(result.message, 'success');
-            document.getElementById('deleteModal').classList.remove('show');
-            await this.fetchData();
+        try {
+            const result = await this.api.deleteProduct(this.deletingId);
+            
+            if (result.status === 'success') {
+                this.ui.showToast(result.message || "Product deleted!", 'success');
+                document.getElementById('deleteModal').classList.remove('show');
+                await this.fetchData();
+            } else {
+                this.ui.showToast(result.message || "Failed to delete product.", 'error');
+            }
+        } catch (error) {
+            console.error(error);
+            this.ui.showToast("Server connection error during deletion.", 'error');
         }
     }
 
@@ -168,7 +175,6 @@ class InventorySystem {
         }
     }
 
-    // Export to CSV Function
     exportToCSV() {
         if (this.products.length === 0) {
             this.ui.showToast("No products to export.", "error");
@@ -285,21 +291,42 @@ class InventorySystem {
         document.getElementById('confirmDeleteBtn').onclick = () => this.executeDelete();
         document.getElementById('confirmReceivePoBtn').onclick = () => this.executeReceivePo();
 
+        // --- NEW PRODUCT UPLOAD LOGIC ---
         document.getElementById('productForm').onsubmit = async (e) => {
             e.preventDefault();
-            const data = {
-                name: document.getElementById('productName').value,
-                supplier: document.getElementById('supplier').value,
-                cat_id: parseInt(document.getElementById('category').value),
-                quantity: parseInt(document.getElementById('quantity').value),
-                price: parseFloat(document.getElementById('price').value),
-                owner: localStorage.getItem('currentUser')
-            };
-            const result = this.editingId ? await this.api.updateProduct({ ...data, id: this.editingId }) : await this.api.addProduct(data);
+            
+            const formData = new FormData();
+            formData.append('name', document.getElementById('productName').value);
+            formData.append('supplier', document.getElementById('supplier').value);
+            formData.append('cat_id', parseInt(document.getElementById('category').value));
+            formData.append('quantity', parseInt(document.getElementById('quantity').value));
+            formData.append('price', parseFloat(document.getElementById('price').value));
+            formData.append('owner', localStorage.getItem('currentUser'));
+
+            const imageFile = document.getElementById('productImage').files[0];
+            if (imageFile) {
+                formData.append('product_image', imageFile);
+            }
+
+            let result;
+            if (this.editingId) {
+                // Keep edit logic as text-only JSON for now
+                const data = Object.fromEntries(formData.entries());
+                data.id = this.editingId;
+                delete data.product_image; // Remove file object before sending as JSON
+                result = await this.api.updateProduct(data);
+            } else {
+                // Call the new API method that handles FormData
+                result = await this.api.addProductWithImage(formData);
+            }
+
             if (result.status === 'success') {
                 this.ui.showToast(result.message, 'success');
                 document.getElementById('productModal').classList.remove('show');
+                document.getElementById('productImage').value = ''; 
                 await this.fetchData();
+            } else {
+                this.ui.showToast(result.message || "Error adding product", 'error');
             }
         };
 

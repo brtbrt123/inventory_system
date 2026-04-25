@@ -11,9 +11,15 @@ export class UI {
         const cat = document.getElementById('categoryFilter').value;
         const filtered = products.filter(p => (p.name.toLowerCase().includes(term) || p.supplier.toLowerCase().includes(term)) && (!cat || p.cat_id == cat));
 
-        document.getElementById('tableBody').innerHTML = filtered.map(p => `
+        document.getElementById('tableBody').innerHTML = filtered.map(p => {
+            // NEW: Use a generic box icon if the user didn't upload a product image
+            const defaultImage = 'https://cdn-icons-png.flaticon.com/512/679/679821.png';
+            const imgSrc = p.image_path && p.image_path !== 'null' ? p.image_path : defaultImage; 
+            
+            return `
             <tr>
                 <td>${p.id}</td>
+                <td><img src="${imgSrc}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"></td>
                 <td><strong>${p.name}</strong></td>
                 <td>${p.supplier}</td>
                 <td>${p.quantity}</td>
@@ -25,7 +31,7 @@ export class UI {
                     <button class="btn btn-delete" onclick="window.sys.deleteProduct(${p.id})"><i class="fa-solid fa-trash"></i> Del</button>
                 </td>
             </tr>
-        `).join('') || '<tr><td colspan="7">No products found.</td></tr>';
+        `}).join('') || '<tr><td colspan="8">No products found.</td></tr>';
     }
 
     renderPOTable(pos) {
@@ -75,6 +81,29 @@ export class UI {
                     <td>${p.supplier}</td>
                 </tr>
             `).join('') || '<tr><td colspan="4">No items need restocking currently.</td></tr>';
+        }
+
+        const catTable = document.getElementById('categoryReportTable');
+        if (catTable) {
+            const catStats = {};
+            products.forEach(p => {
+                const cid = p.cat_id || 'Uncategorized';
+                if (!catStats[cid]) catStats[cid] = { count: 0, value: 0 };
+                catStats[cid].count += 1;
+                catStats[cid].value += (p.quantity * parseFloat(p.price));
+            });
+
+            let catNameMap = { "1": "Electronics", "2": "Office Supplies", "3": "Accessories", "4": "Furniture" };
+
+            const catHtml = Object.keys(catStats).map(cid => `
+                <tr>
+                    <td><strong>${catNameMap[cid] || 'Category ' + cid}</strong></td>
+                    <td>${catStats[cid].count} unique items</td>
+                    <td>₱ ${catStats[cid].value.toFixed(2)}</td>
+                </tr>
+            `).join('');
+
+            catTable.innerHTML = catHtml || '<tr><td colspan="3">No category data available.</td></tr>';
         }
     }
 }
