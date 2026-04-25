@@ -1,6 +1,4 @@
-/* ==========================================================================
-   Cabuyao Tech Inventory - Autumn Aesthetic Palette (FINAL)
-   ========================================================================== */
+
 
 * { 
     margin: 0; 
@@ -10,14 +8,14 @@
 }
 
 :root { 
-    /* Main Backgrounds & Text */
+
     --bg: #F7F3E8;            
     --sidebar: #E9E1D2;       
     --text: #333333;          
     --text-muted: #64748b;    
     --border: #D1C8B9;        
     
-    /* Semantic Colors from Image Palette */
+
     --primary: #2C5F6F;       
     --primary-hover: #224a57; 
     --success: #C97C5D;       
@@ -27,7 +25,6 @@
     --info: #3b82f6;          
 }
 
-/* --- Custom Scrollbar --- */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
@@ -42,9 +39,7 @@ body {
     line-height: 1.6;
 }
 
-/* ==========================================================================
-   Login Screen
-   ========================================================================== */
+
 #loginScreen {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -66,9 +61,7 @@ body {
 .login-box h2 { margin-bottom: 8px; color: var(--primary); font-size: 1.8rem; letter-spacing: -0.5px;}
 .login-box p { color: var(--text-muted); margin-bottom: 35px; font-size: 0.95rem; }
 
-/* ==========================================================================
-   App Layout & Sidebar
-   ========================================================================== */
+
 #appContainer { display: none; width: 100%; height: 100%; flex-direction: row; }
 
 .sidebar { 
@@ -130,9 +123,7 @@ body {
 .sidebar a.logout-btn { margin-top: auto; color: var(--success); border-top: 2px solid var(--border); border-radius: 0; padding-top: 20px; }
 .sidebar a.logout-btn:hover { background-color: transparent; transform: translateX(6px); box-shadow: none; color: var(--success-hover); }
 
-/* ==========================================================================
-   Main Content & Header
-   ========================================================================== */
+
 .main-content { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
 
 .header { 
@@ -168,9 +159,7 @@ body {
 .user-info-text label { color: #F7F3E8; font-size: 0.75rem; cursor: pointer; opacity: 0.8; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
 .user-info-text label:hover { opacity: 1; text-decoration: underline; }
 
-/* ==========================================================================
-   Page Titles & Top Controls 
-   ========================================================================== */
+
 .page-title { 
     font-size: 2.2rem;       
     font-weight: 800; 
@@ -187,9 +176,7 @@ body {
 }
 .controls-bar input:focus, .controls-bar select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(44, 95, 111, 0.15); }
 
-/* ==========================================================================
-   Dashboard Cards
-   ========================================================================== */
+
 .content-area { padding: 35px; overflow-y: auto; flex: 1; }
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 40px; }
 .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.3s ease, box-shadow 0.3s ease; border-left: 5px solid var(--primary); display: flex; flex-direction: column; gap: 10px; }
@@ -199,9 +186,7 @@ body {
 .card.warning { border-left-color: var(--warning); }
 .card.danger { border-left-color: var(--success); }
 
-/* ==========================================================================
-   Tables & Status Texts
-   ========================================================================== */
+
 .table-wrapper { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); overflow: hidden; }
 table { width: 100%; border-collapse: collapse; }
 th, td { padding: 16px 20px; text-align: left; border-bottom: 1px solid var(--border); }
@@ -212,41 +197,36 @@ tbody tr:hover { background-color: rgba(44, 95, 111, 0.04); }
 .low-stock { color: #D32F2F !important; font-weight: 800; }
 .good-stock { color: #2E7D32 !important; font-weight: 800; }
 
-/* ==========================================================================
-   Global Buttons & Table Actions 
-   ========================================================================== */
+
 .btn { 
     padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; color: white; 
     transition: all 0.2s ease; font-weight: 600; display: inline-flex; align-items: center; 
     gap: 8px; justify-content: center; 
 }
 
-/* Primary Form Buttons (Add/Save) */
 .btn-add { background-color: var(--primary); }
 .btn-add:hover { background-color: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
 
-/* Edit Buttons (Gold) */
+
 .btn-edit { background-color: var(--warning) !important; color: #ffffff !important; }
 .btn-edit:hover { background-color: #b5823a !important; box-shadow: 0 4px 10px rgba(216, 160, 83, 0.3) !important; transform: translateY(-2px); }
 
-/* Delete Buttons (Crimson Red - FIXES THE MODAL VISIBILITY) */
+
 .btn-delete { background-color: #D32F2F !important; color: #ffffff !important; }
 .btn-delete:hover { background-color: #B71C1C !important; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3) !important; transform: translateY(-2px); }
 
-/* Table Action Button Sizing */
+
 td .btn {
     min-width: 90px; 
     padding: 8px 10px !important; 
     font-size: 0.85rem !important;
 }
 
-/* Table Sell Button (Green) */
+
 td .btn:nth-child(1) { background-color: #2E7D32 !important; color: white !important;}
 td .btn:nth-child(1):hover { background-color: #1B5E20 !important; box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3) !important; transform: translateY(-2px); }
 
-/* ==========================================================================
-   Modals, Overlays & Forms
-   ========================================================================== */
+
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000; }
 .modal-overlay.show { display: flex; animation: fadeIn 0.2s ease-out; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -258,14 +238,11 @@ td .btn:nth-child(1):hover { background-color: #1B5E20 !important; box-shadow: 0
 .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; transition: all 0.3s ease; background-color: #faf8f5; color: var(--text); }
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background-color: #ffffff; box-shadow: 0 0 0 4px rgba(44, 95, 111, 0.15); }
 
-/* Modal Action Button Layout */
 .modal-actions { display: flex; justify-content: flex-end; align-items: center; gap: 15px; margin-top: 35px; padding-top: 20px; border-top: 1px solid var(--border); }
 .close-modal { background-color: #e2e8f0; color: var(--text-muted); padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; font-weight: 600; }
 .close-modal:hover { background-color: #cbd5e1; color: var(--text); }
 
-/* ==========================================================================
-   Toasts (Notifications)
-   ========================================================================== */
+
 .toast { position: fixed; top: 25px; right: 25px; padding: 16px 24px; border-radius: 8px; color: white; z-index: 2000; font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; }
 .toast.success { background-color: var(--primary); border-left: 5px solid #1a3c47; }
 .toast.error { background-color: var(--success); border-left: 5px solid #8e543e; }
