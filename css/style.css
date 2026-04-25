@@ -1,7 +1,4 @@
-/* ==========================================================================
-   CABUYAO TECH INVENTORY - CSS IMPROVEMENTS ONLY
-   Works with your original HTML structure - NO CHANGES NEEDED
-   ========================================================================= */
+
 
 /* --- 1. CORE VARIABLES & NORMALIZATION --- */
 :root {
@@ -61,7 +58,7 @@ body {
 .login-box {
     background: white;
     width: 90%; 
-    max-width: 550px; /* Adjusted so centered forms look better */
+    max-width: 550px; 
     padding: 60px;
     border-radius: 40px;
     box-shadow: 0 40px 80px rgba(0, 0, 0, 0.25);
@@ -79,17 +76,16 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Hide original bulky elements */
+
 .login-box h2#authTitle { display: none; }
 .login-box > p:first-of-type { display: none; }
 
-/* FIX: Let JavaScript handle the display, just define the flex layout when active */
+
 #loginForm, #signupForm {
     width: 100%;
     flex-direction: column;
 }
 
-/* Style the title inside the signup form to match */
 #signupForm h2 {
     color: var(--purple-primary);
     font-size: 2.2rem;
@@ -98,7 +94,7 @@ body {
     text-align: center;
 }
 
-/* LOGIN TITLE - Make it prominent */
+/* LOGIN TITLE  */
 #loginForm h1,
 #loginForm h3,
 #authTitle {
@@ -279,19 +275,19 @@ body {
     border-radius: 30px; font-size: 1rem; font-weight: 700; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* --- Header Logo & Brand (Horizontal & Small) --- */
+/* --- Header Logo & Brand --- */
 .header-brand {
     display: flex;
     align-items: center;
-    gap: 12px; /* Smooth spacing between logo and text */
+    gap: 12px; 
 }
 
 .header-logo {
-    height: 80px; /* Small height to match the h3 pill */
-    width: auto;  /* Allows the horizontal logo to stretch naturally */
-    object-fit: contain; /* Prevents the image from being cropped */
-    border-radius: 8px; /* Soft edges instead of a harsh circle */
-    background-color: transparent; /* Removes white box if logo has no background */
+    height: 80px;
+    width: auto;  
+    object-fit: contain; 
+    border-radius: 8px; 
+    background-color: transparent; 
 }
 
 .user-info { display: flex; align-items: center; gap: 15px; background: var(--text-main); padding: 10px 25px 10px 10px; border-radius: 50px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
@@ -353,7 +349,7 @@ tbody tr:hover { background-color: rgba(139, 43, 226, 0.02); }
 /* Modals */
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000; }
 
-/* FIX: Ensure modals display when JS triggers them */
+
 .modal-overlay.show, .modal-overlay.active { display: flex; }
 
 .modal { background: white; padding: 35px 40px; border-radius: 16px; width: 90%; max-width: 550px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); animation: slideUp 0.3s ease-out; border: 1px solid var(--border); }
