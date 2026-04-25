@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $pass = ""; // Default XAMPP password is empty
-$dbname = "cabuyao_inventory_grp8"; // The database you made in Workbench
+$dbname = "cabuyao_inventory_grp8";
 
 // 1. This line actually CREATES the $conn variable!
 $conn = new mysqli($host, $user, $pass, $dbname);
