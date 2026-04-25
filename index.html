@@ -65,7 +65,7 @@
                 <div class="header-right">
                     <div class="user-info">
                         <div class="user-avatar">
-                            <img src="img/profile_C.jpg" alt="Admin" id="headerProfilePic">
+                            <img src="img/profile_C.webp" alt="Admin" id="headerProfilePic">
                         </div>
                         <div style="display: flex; flex-direction: column; justify-content: center;">
                             <div><strong id="userFullName">Admin User</strong></div>
@@ -132,10 +132,15 @@
                 </div>
                 
                 <div id="reportsPage" class="page-content" style="display: none;">
-                    <div class="page-title">Reports & Restocking Needs</div>
+                    <div class="page-title" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Reports & Restocking Needs</span>
+                        <button class="btn btn-add" id="printReportBtn" style="background-color: var(--info);"><i class="fa-solid fa-print"></i> Print Report</button>
+                    </div>
+                    
                     <div class="cards">
                         <div class="card warning"><h3>Items Needing Restock</h3><div class="value" id="restockCount">0</div></div>
                     </div>
+                    
                     <h3 style="margin-top: 30px; margin-bottom: 15px; color: var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> Restocking Needs (Low Stock)</h3>
                     <div class="table-wrapper" style="border: 1px solid #fca5a5;">
                         <table>
@@ -143,17 +148,59 @@
                             <tbody id="restockTableBody"></tbody>
                         </table>
                     </div>
+
+                    <h3 style="margin-top: 30px; margin-bottom: 15px;"><i class="fa-solid fa-chart-pie"></i> Category Distribution</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>Category ID</th><th>Total Products</th><th>Total Stock Value (₱)</th></tr></thead>
+                            <tbody id="categoryReportTable"></tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div id="settingsPage" class="page-content" style="display: none;">
-                    <div class="page-title">Settings</div>
-                    <div style="background: white; padding: 30px; border-radius: 8px;">
-                        <div class="form-group">
-                            <label>Low Stock Threshold (Quantity)</label>
-                            <input type="number" id="lowStockThreshold" value="10" min="1">
-                            <small>Products below this quantity trigger alerts.</small>
+                    <div class="page-title">Settings & Preferences</div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div style="background: white; padding: 30px; border-radius: 8px;">
+                            <h3 style="margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;"><i class="fa-solid fa-boxes-stacked" style="color: var(--primary);"></i> Inventory Settings</h3>
+                            <div class="form-group">
+                                <label>Low Stock Threshold (Quantity)</label>
+                                <input type="number" id="lowStockThreshold" value="10" min="1">
+                                <small style="color: #64748b;">Products below this quantity trigger alerts.</small>
+                            </div>
                         </div>
-                        <button class="btn btn-delete" id="clearDataBtn"><i class="fa-solid fa-trash-can"></i> Clear All System Data</button>
+
+                        <div style="background: white; padding: 30px; border-radius: 8px;">
+                            <h3 style="margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;"><i class="fa-solid fa-store" style="color: var(--success);"></i> Business Preferences</h3>
+                            <div class="form-group">
+                                <label>Store Currency</label>
+                                <select id="currencySymbol">
+                                    <option value="₱">PHP (₱)</option>
+                                    <option value="$">USD ($)</option>
+                                    <option value="€">EUR (€)</option>
+                                </select>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div class="form-group">
+                                    <label>Default Tax Rate (%)</label>
+                                    <input type="number" id="taxRate" value="12" min="0" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Flat Shipping Fee</label>
+                                    <input type="number" id="shippingFee" value="50" min="0" step="1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: white; padding: 30px; border-radius: 8px; grid-column: 1 / -1;">
+                            <h3 style="margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;"><i class="fa-solid fa-database" style="color: var(--info);"></i> Data Management</h3>
+                            <p style="margin-bottom: 15px; color: #64748b; font-size: 0.9rem;">Export your current inventory to a spreadsheet for physical stock audits or accounting purposes.</p>
+                            <div style="display: flex; gap: 15px;">
+                                <button class="btn btn-add" id="exportCsvBtn" style="background-color: var(--success);"><i class="fa-solid fa-file-csv"></i> Export Inventory to CSV</button>
+                                <button class="btn btn-delete" id="clearDataBtn"><i class="fa-solid fa-trash-can"></i> Clear All System Data</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -35,14 +35,23 @@ class InventorySystem {
         
         const name = localStorage.getItem('currentFullName');
         const user = localStorage.getItem('currentUser');
-        const pic = localStorage.getItem('currentProfilePic'); // Retrieve saved picture
+        const pic = localStorage.getItem('currentProfilePic'); 
         
-        if (document.getElementById('userFullName')) document.getElementById('userFullName').textContent = name || "User";
-        if (document.getElementById('userRole')) document.getElementById('userRole').textContent = "@" + (user || "admin");
+        // FIX FOR "NULL" TEXT BUG
+        if (document.getElementById('userFullName')) {
+            document.getElementById('userFullName').textContent = (name && name !== 'null') ? name : "Admin User";
+        }
+        if (document.getElementById('userRole')) {
+            document.getElementById('userRole').textContent = "@" + (user || "admin");
+        }
         
-        // Update the image element if a picture exists in localStorage
-        if (pic && document.getElementById('headerProfilePic')) {
-            document.getElementById('headerProfilePic').src = pic;
+        // FIX FOR DEFAULT .WEBP IMAGE
+        if (document.getElementById('headerProfilePic')) {
+            if (pic && pic !== 'null' && pic !== 'undefined' && pic !== '') {
+                document.getElementById('headerProfilePic').src = pic;
+            } else {
+                document.getElementById('headerProfilePic').src = 'img/profile_C.webp';
+            }
         }
         
         await this.fetchData();
@@ -67,11 +76,9 @@ class InventorySystem {
     }
 
     renderAll() {
-        // Render main tables
         this.ui.renderInventoryTable(this.products, this.lowStockThreshold);
         this.ui.renderPOTable(this.purchaseOrders);
         
-        // Calculate and update Dashboard Cards
         if(document.getElementById('totalProducts')) {
             document.getElementById('totalProducts').textContent = this.products.length;
         }
@@ -86,7 +93,6 @@ class InventorySystem {
             document.getElementById('totalValue').textContent = `₱ ${totalVal.toFixed(2)}`;
         }
 
-        // Render extra pages (Recent Activity & Reports)
         this.ui.renderDashboardExtras(this.products, this.lowStockThreshold);
         this.ui.renderReports(this.products, this.lowStockThreshold);
     }
@@ -162,8 +168,40 @@ class InventorySystem {
         }
     }
 
+    // Export to CSV Function
+    exportToCSV() {
+        if (this.products.length === 0) {
+            this.ui.showToast("No products to export.", "error");
+            return;
+        }
+        
+        const headers = ["Product ID", "Product Name", "Supplier", "Current Stock", "Unit Price"];
+        
+        const rows = this.products.map(p => [
+            p.id, 
+            `"${p.name}"`, 
+            `"${p.supplier}"`, 
+            p.quantity, 
+            p.price
+        ]);
+        
+        const csvContent = "data:text/csv;charset=utf-8," 
+            + headers.join(",") + "\n" 
+            + rows.map(e => e.join(",")).join("\n");
+            
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `Inventory_Export_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        
+        link.click();
+        document.body.removeChild(link);
+        
+        this.ui.showToast("Inventory exported successfully!", "success");
+    }
+
     setupEventListeners() {
-        // Navigation
         document.querySelectorAll('.nav-item').forEach(item => {
             item.onclick = (e) => {
                 const page = e.currentTarget.getAttribute('data-page');
@@ -174,12 +212,16 @@ class InventorySystem {
             };
         });
 
-        // Authentication Toggles
         document.getElementById('showSignupBtn').onclick = (e) => { e.preventDefault(); this.auth.toggleAuth(true); };
         document.getElementById('showLoginBtn').onclick = (e) => { e.preventDefault(); this.auth.toggleAuth(false); };
         document.getElementById('logoutBtn').onclick = () => this.auth.logout();
 
-        // Auth Forms
+        const printBtn = document.getElementById('printReportBtn');
+        if (printBtn) printBtn.onclick = () => window.print();
+
+        const exportBtn = document.getElementById('exportCsvBtn');
+        if (exportBtn) exportBtn.onclick = () => this.exportToCSV();
+
         document.getElementById('loginForm').onsubmit = async (e) => {
             e.preventDefault();
             const u = document.getElementById('loginUsername').value;
@@ -201,7 +243,6 @@ class InventorySystem {
             } else this.ui.showToast(result.message, "error");
         };
 
-        // --- NEW: Profile Photo Upload Listener ---
         const profileUploadInput = document.getElementById('profileUpload');
         if (profileUploadInput) {
             profileUploadInput.onchange = async (e) => {
@@ -227,7 +268,6 @@ class InventorySystem {
             };
         }
 
-        // Open Modals
         document.getElementById('openModalBtn').onclick = () => this.editProduct(null);
         document.getElementById('openPoModalBtn').onclick = () => {
             document.getElementById('poProductSelect').innerHTML = '<option value="" disabled selected>Select Product...</option>' + 
@@ -235,19 +275,16 @@ class InventorySystem {
             document.getElementById('poModal').classList.add('show');
         };
 
-        // Close Modals
         document.getElementById('closeModalBtn').onclick = () => document.getElementById('productModal').classList.remove('show');
         document.getElementById('closeSellModalBtn').onclick = () => document.getElementById('sellModal').classList.remove('show');
         document.getElementById('closeDeleteModalBtn').onclick = () => document.getElementById('deleteModal').classList.remove('show');
         document.getElementById('closePoModalBtn').onclick = () => document.getElementById('poModal').classList.remove('show');
         document.getElementById('closeReceivePoModalBtn').onclick = () => document.getElementById('receivePoModal').classList.remove('show');
 
-        // Confirm Actions
         document.getElementById('confirmSellBtn').onclick = () => this.executeSale();
         document.getElementById('confirmDeleteBtn').onclick = () => this.executeDelete();
         document.getElementById('confirmReceivePoBtn').onclick = () => this.executeReceivePo();
 
-        // Forms inside Modals
         document.getElementById('productForm').onsubmit = async (e) => {
             e.preventDefault();
             const data = {
@@ -277,7 +314,6 @@ class InventorySystem {
             }
         };
 
-        // Search & Filter
         document.getElementById('searchInput').oninput = () => this.renderAll();
         document.getElementById('categoryFilter').onchange = () => this.renderAll();
     }
