@@ -1,40 +1,49 @@
+To provide a professional README for your semester project, I have drafted a version that highlights the technical complexity of your work—specifically focusing on the **Relational Database Design**, **Normalization**, and the **Visual Inventory** features we implemented.
+
+### README.md
+
 # Cabuyao Tech Inventory Management System
+**CS Project - Semester 2 | Group 8**
 
-A web-based inventory management application developed by **Group 8** for the Bachelor of Science in Computer Science program at **Pamantasan ng Cabuyao (PnC)**.
+## 🚀 Project Overview
+A robust, full-stack Inventory Management System designed to handle real-time stock tracking, automated purchase ordering, and visual inventory management. This project demonstrates the practical application of relational database principles, asynchronous data handling, and professional UI/UX design.
 
-## 📌 Project Overview
-This system provides a professional interface for managing product stock, tracking suppliers, and handling user authentication (Login/Signup). It demonstrates full-stack development integration using HTML, CSS, JavaScript, PHP, and MySQL.
+<img width="1912" height="977" alt="image" src="https://github.com/user-attachments/assets/874a1cc6-df72-4487-9359-9f26df81f512" />
 
-## 📂 Project Structure
-The project is organized for better maintainability and professional standards:
-* **`/css`**: Contains `style.css` for all visual layouts.
-* **`/js`**: Contains `script.js` for frontend logic and API communication.
-* **`/php`**: Contains all backend logic, including `db_connect.php`, `signup.php`, and `get_products.php`.
-* **`/img`**: Storage for assets like the admin profile photo (`profile_C.jpg`).
-* **`inventory_system_db.sql`**: The database schema export to recreate the `users`, `products`, and `purchase_orders` tables.
-* **`index.html`**: The main entry point of the application.
 
-## 🚀 Key Features
-* **User Authentication**: Secure Login and Signup functionality.
-* **Real-time Dashboard**: Overview of total products, total value, and stock alerts.
-* **Inventory Management**: Full CRUD functionality for products.
-* **Database Integration**: Fully connected to a MySQL backend via PHP.
+## 🛠️ Technical Stack
+* **Frontend:** HTML5, CSS3 (Custom Grid/Flexbox), Vanilla JavaScript (ES6+ Modules)
+* **Backend:** PHP 8.x (PDO for Secure Database Communication)
+* **Database:** MariaDB / MySQL (Relational Schema)
+* **Icons:** FontAwesome 6.4
 
-## 🛠️ Tech Stack
-* **Frontend**: HTML5, CSS3, JavaScript
-* **Backend**: PHP
-* **Database**: MySQL
-* **Environment**: XAMPP (Apache)
+## 📊 Database Architecture (Semester Mastery)
+This project serves as a comprehensive demonstration of 1st-semester database concepts:
 
-## 🔧 Setup Instructions
-1.  Place the folder in your XAMPP `htdocs` directory.
-2.  Open phpMyAdmin and create a database named `cabuyao_inventory_grp8`.
-3.  Import the `inventory_system_db.sql` file into your new database.
-4.  Update `php/db_connect.php` with your local database credentials.
-5.  Access the system at `http://localhost/inventory_system/`.
+* **Normalization:** The schema follows **Second Normal Form (2NF)** and **Third Normal Form (3NF)** principles to eliminate data redundancy and ensure atomic data storage.
+* **Relational Mapping:** Implements **One-to-Many relationships** across five core tables: `users`, `products`, `categories`, `purchase_orders`, and `stock_history`.
+* **Referential Integrity:** Utilizes `FOREIGN KEY` constraints to enforce business rules and prevent "orphan" records during deletion or updates.
+* **Complex SQL Joins:** Advanced use of `LEFT JOIN` and `INNER JOIN` to aggregate data from multiple tables into a single user view.
+* **ACID Transactions:** Backend logic uses PHP `PDO::beginTransaction` to ensure that complex operations (like receiving an order) are atomic and consistent.
 
-## 👥 Group 8 Members
-* **Bril Abarquiz** (Lead Developer)
 
----
-*Developed for academic purposes at Pamantasan ng Cabuyao.*
+
+## ✨ Key Features
+* **Visual Inventory:** Circular product thumbnails with automated default fallback icons for items without uploaded photos.
+* **Secure CRUD:** Fully functional Create, Read, Update, and Delete operations with cascading delete logic to maintain database history.
+* **Stock History Tracking:** Automated audit logs that record every sale or restock action, including user handles and timestamps.
+* **Responsive Dashboard:** Real-time analytics showing Total Value (PHP), Low Stock Alerts, and Pending Orders.
+* **Data Export:** One-click CSV export functionality for physical stock auditing.
+
+
+
+## 🔧 Installation & Setup
+1.  Clone the repository to your local server directory (e.g., `htdocs` for XAMPP).
+2.  Import the provided `cabuyao_inventory_grp8.sql` dump into your **phpMyAdmin**.
+3.  Ensure your `db_connect.php` credentials match your local environment.
+4.  Launch `index.html` via `localhost`.
+
+## 👥 Group Members
+* **Group 8 - Computer Science Students**
+* *Laguna, Philippines*
+
