@@ -3,6 +3,9 @@ export class API {
         this.baseUrl = 'php/';
     }
 
+    /**
+     * Standard helper for JSON-based requests (Login, Signup, CRUD)
+     */
     async request(endpoint, data = null) {
         const options = {
             method: data ? 'POST' : 'GET',
@@ -19,14 +22,15 @@ export class API {
         }
     }
 
-    // --- NEW: Special method for handling Image Uploads ---
+    /**
+     * Handles User Profile Photo uploads
+     */
     async uploadProfile(formData) {
         try {
             const response = await fetch(`${this.baseUrl}user_profile_upload.php`, {
                 method: 'POST',
-                // Notice we do NOT set 'Content-Type' here. 
-                // The browser sets it automatically to 'multipart/form-data' for files.
-                body: formData 
+                // Browser sets 'multipart/form-data' automatically for FormData
+                body: formData
             });
             return await response.json();
         } catch (error) {
@@ -35,7 +39,9 @@ export class API {
         }
     }
 
-    // Add this right underneath your uploadProfile method
+    /**
+     * Handles adding NEW products with an image
+     */
     async addProductWithImage(formData) {
         try {
             const response = await fetch(`${this.baseUrl}product_add.php`, {
@@ -48,17 +54,34 @@ export class API {
             throw error;
         }
     }
-    // -----------------------------------------------------
 
+    /**
+     * Handles updating EXISTING products with a new image
+     */
+    async updateProductWithImage(formData) {
+        try {
+            const response = await fetch(`${this.baseUrl}product_update.php`, {
+                method: 'POST',
+                body: formData 
+            });
+            return await response.json();
+        } catch (error) {
+            console.error("Update Product Error:", error);
+            throw error;
+        }
+    }
+
+    // --- Authentication ---
     login(data) { return this.request('user_login.php', data); }
     signup(data) { return this.request('user_signup.php', data); }
 
+    // --- Product Management ---
     getProducts(user) { return this.request(`product_get.php?user=${user}`); }
-    addProduct(data) { return this.request('product_add.php', data); }
     updateProduct(data) { return this.request('product_update.php', data); }
     deleteProduct(id) { return this.request('product_delete.php', { id }); }
     sellProduct(data) { return this.request('sale_record.php', data); }
 
+    // --- Purchase Order Management ---
     getPOs(user) { return this.request(`po_get.php?user=${user}`); }
     createPO(data) { return this.request('po_create.php', data); }
     receivePO(data) { return this.request('po_receive.php', data); }

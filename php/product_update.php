@@ -1,35 +1,37 @@
 <?php
-include 'db_connect.php';
 header('Content-Type: application/json');
+include 'db_connect.php'; // Ensure this uses your cabuyao_inventory_grp8 DB
 
-$data = json_decode(file_get_contents("php://input"), true);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id = $_POST['id'] ?? '';
+    $name = $_POST['name'] ?? '';
+    $supplier = $_POST['supplier'] ?? '';
+    $cat_id = $_POST['cat_id'] ?? null;
+    $quantity = $_POST['quantity'] ?? 0;
+    $price = $_POST['price'] ?? 0;
 
-if (isset($data['id'])) {
-    $id = (int)$data['id'];
-    $name = $conn->real_escape_string($data['name']);
-    $supplier = $conn->real_escape_string($data['supplier']);
-    
-    // 👉 CHANGE 1: We look for 'cat_id' from the JavaScript and ensure it's an integer
-    $cat_id = (int)$data['cat_id']; 
-    
-    $quantity = (int)$data['quantity'];
-    $price = (float)$data['price'];
-    $description = $conn->real_escape_string($data['description']);
+    try {
+        $updateImage = "";
+        $params = [$name, $supplier, $cat_id, $quantity, $price];
 
-    // 👉 CHANGE 2: Update the 'cat_id' column instead of 'category', and remove the quotes around the number
-    $sql = "UPDATE products SET 
-            name='$name', supplier='$supplier', cat_id=$cat_id, 
-            quantity=$quantity, price=$price, description='$description' 
-            WHERE id=$id";
+        if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
+            $fileExtension = strtolower(pathinfo($_FILES['product_image']['name'], PATHINFO_EXTENSION));
+            $newFileName = 'prod_' . time() . '.' . $fileExtension;
+            if (move_uploaded_file($_FILES['product_image']['tmp_name'], '../img/' . $newFileName)) {
+                $updateImage = ", image_path = ?";
+                $params[] = 'img/' . $newFileName;
+            }
+        }
 
-    if ($conn->query($sql) === TRUE) {
-        echo json_encode(["status" => "success", "message" => "Product updated successfully!"]);
-    } else {
-        echo json_encode(["status" => "error", "message" => "Update failed: " . $conn->error]);
+        $params[] = $id;
+        $sql = "UPDATE products SET name = ?, supplier = ?, cat_id = ?, quantity = ?, price = ? $updateImage WHERE id = ?";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->execute($params);
+
+        echo json_encode(['status' => 'success', 'message' => 'Product updated successfully!']);
+    } catch (Exception $e) {
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     }
-} else {
-    // It's always good practice to add an 'else' here just in case the ID is missing!
-    echo json_encode(["status" => "error", "message" => "No product ID received."]);
 }
-$conn->close();
 ?>
