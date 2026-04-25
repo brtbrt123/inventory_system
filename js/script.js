@@ -2,15 +2,17 @@ class InventorySystem {
     constructor() {
         this.products = [];
         this.purchaseOrders = [];
-        this.editingId = null;
-        this.currentPage = 1;
-        this.itemsPerPage = 8;
-        this.lowStockThreshold = parseInt(localStorage.getItem('lowStockThreshold') || '10');
+        this.lowStockThreshold = 10;
         
+        // State management
+        this.editingId = null;
+        this.sellingId = null;
+        this.deletingId = null;
+        this.receivingPoId = null;
+
         this.checkAuth();
     }
 
-    // --- AUTHENTICATION ---
     checkAuth() {
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         if (isLoggedIn === 'true') {
@@ -28,7 +30,6 @@ class InventorySystem {
         const newForm = loginForm.cloneNode(true);
         loginForm.parentNode.replaceChild(newForm, loginForm);
 
-        // Login Submit
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const user = document.getElementById('loginUsername').value.trim();
@@ -44,7 +45,7 @@ class InventorySystem {
                 if (result.status === 'success') {
                     localStorage.setItem('currentUser', result.username);
                     localStorage.setItem('currentFullName', result.fullname);
-                    localStorage.setItem('currentProfilePic', result.profile_pic); // Sticky photo fix
+                    localStorage.setItem('currentProfilePic', result.profile_pic); 
                     localStorage.setItem('isLoggedIn', 'true');
                     this.showApp();
                     this.showToast(result.message, 'success');
@@ -52,11 +53,10 @@ class InventorySystem {
                     this.showToast(result.message, 'error');
                 }
             } catch (error) {
-                this.showToast("Connection Error: Check php/login.php", "error");
+                this.showToast("Connection Error", "error");
             }
         });
 
-        // Signup Submit
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const data = {
@@ -95,156 +95,52 @@ class InventorySystem {
         };
     }
 
+    async showApp() {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'flex';
+        this.updateProfileUI();
+        this.initApp();
+    }
+
     showLogin() {
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('appContainer').style.display = 'none';
     }
 
-    showApp() {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('appContainer').style.display = 'flex';
-        this.initApp(); 
+    updateProfileUI() {
+        const name = localStorage.getItem('currentFullName');
+        const user = localStorage.getItem('currentUser');
+        if (document.getElementById('userFullName')) document.getElementById('userFullName').textContent = name || "User";
+        if (document.getElementById('userRole')) document.getElementById('userRole').textContent = "@" + (user || "admin");
     }
 
     async initApp() {
         this.setupAppEventListeners();
-        
-        // --- PROFILE UI UPDATE ---
-        const storedFullName = localStorage.getItem('currentFullName');
-        const storedUsername = localStorage.getItem('currentUser');
-        const storedPic = localStorage.getItem('currentProfilePic');
-        
-        // Update Name and User Handle
-        if (document.getElementById('userFullName')) {
-            document.getElementById('userFullName').textContent = 
-                (storedFullName && storedFullName !== "null") ? storedFullName : "New User";
-        }
-        if (document.getElementById('userRole')) {
-            document.getElementById('userRole').textContent = "@" + (storedUsername || "user");
-        }
-
-        // Update Profile Picture with Default Fallback
-        const profileImgElement = document.getElementById('headerProfilePic');
-        if (profileImgElement) {
-            if (storedPic && storedPic !== "null" && storedPic !== "undefined") {
-                profileImgElement.src = 'img/' + storedPic;
-            } else {
-                profileImgElement.src = 'img/profile_C.jpg';
-            }
-        }
-
-        await this.fetchRealData(); 
+        await this.fetchRealData();
     }
 
     async fetchRealData() {
+        const user = localStorage.getItem('currentUser');
         try {
-            const currentUser = localStorage.getItem('currentUser');
-            const response = await fetch(`php/get_products.php?user=${currentUser}`);
-            this.products = await response.json();
+            const [prodsRes, posRes] = await Promise.all([
+                fetch(`php/get_products.php?user=${user}`),
+                fetch(`php/get_pos.php?user=${user}`)
+            ]);
+            this.products = await prodsRes.json();
+            this.purchaseOrders = await posRes.json();
             this.renderAll();
-        } catch (error) { 
-            this.showToast("Data fetch error", "error"); 
-        }
-    }
-
-    setupAppEventListeners() {
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.onclick = (e) => {
-                const page = e.currentTarget.getAttribute('data-page');
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-                document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
-                document.getElementById(page + 'Page').style.display = 'block';
-                this.renderAll();
-            };
-        });
-
-        document.getElementById('searchInput').addEventListener('input', () => this.renderInventoryTable());
-        document.getElementById('categoryFilter').addEventListener('change', () => this.renderInventoryTable());
-
-        const pForm = document.getElementById('productForm');
-        pForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const product = {
-                name: document.getElementById('productName').value,
-                supplier: document.getElementById('supplier').value,
-                category: document.getElementById('category').value,
-                quantity: parseInt(document.getElementById('quantity').value),
-                price: parseFloat(document.getElementById('price').value),
-                description: document.getElementById('description') ? document.getElementById('description').value : '',
-                owner: localStorage.getItem('currentUser') 
-            };
-
-            const url = this.editingId ? 'php/update_product.php' : 'php/add_product.php';
-            
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(this.editingId ? {...product, id: this.editingId} : product)
-                });
-                const result = await response.json();
-                if(result.status === 'success') {
-                    this.showToast(result.message, 'success');
-                    document.getElementById('productModal').classList.remove('show');
-                    await this.fetchRealData();
-                } else {
-                    this.showToast(result.message, 'error');
-                }
-            } catch(err) { this.showToast("Save failed", "error"); }
-        };
-
-        // Handle Profile Picture Upload
-        const profileInput = document.getElementById('profileUpload');
-        if (profileInput) {
-            profileInput.addEventListener('change', async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                const formData = new FormData();
-                formData.append('profile_image', file);
-                formData.append('username', localStorage.getItem('currentUser'));
-
-                try {
-                    const response = await fetch('php/upload_profile.php', {
-                        method: 'POST',
-                        body: formData 
-                    });
-                    
-                    const result = await response.json();
-                    if (result.status === 'success') {
-                        this.showToast("Profile updated!", "success");
-                        document.getElementById('headerProfilePic').src = 'img/' + result.filename;
-                        localStorage.setItem('currentProfilePic', result.filename); 
-                    } else {
-                        this.showToast(result.message, "error");
-                    }
-                } catch (error) {
-                    this.showToast("Upload failed", "error");
-                }
-            });
-        }
-
-        document.getElementById('openModalBtn').onclick = () => {
-            this.editingId = null;
-            pForm.reset();
-            document.getElementById('productModal').classList.add('show');
-        };
-        document.getElementById('closeModalBtn').onclick = () => {
-            document.getElementById('productModal').classList.remove('show');
-        };
+        } catch (e) { this.showToast("Data fetch error", "error"); }
     }
 
     renderAll() {
         this.renderDashboard();
         this.renderInventoryTable();
-        this.renderReportsPage();
+        this.renderPurchaseOrdersTable();
     }
 
     renderDashboard() {
-        const lowStockItems = this.products.filter(p => p.quantity < this.lowStockThreshold);
         document.getElementById('totalProducts').textContent = this.products.length;
-        document.getElementById('lowStockCount').textContent = lowStockItems.length;
+        document.getElementById('lowStockCount').textContent = this.products.filter(p => p.quantity < this.lowStockThreshold).length;
         const totalVal = this.products.reduce((sum, p) => sum + (p.quantity * p.price), 0);
         document.getElementById('totalValue').textContent = `₱ ${totalVal.toFixed(2)}`;
         
@@ -270,8 +166,9 @@ class InventorySystem {
                 <td>${p.supplier}</td>
                 <td>${p.quantity}</td>
                 <td>₱ ${parseFloat(p.price).toFixed(2)}</td>
-                <td><span class="${p.quantity < this.lowStockThreshold ? 'low-stock' : 'good-stock'}">${p.quantity < this.lowStockThreshold ? 'Low Stock' : 'Good'}</span></td>
+                <td><span class="${p.quantity < this.lowStockThreshold ? 'low-stock' : 'good-stock'}">${p.quantity < this.lowStockThreshold ? 'Low' : 'Good'}</span></td>
                 <td>
+                    <button class="btn" style="background-color: var(--success);" onclick="sys.sellProduct(${p.id})">Sell</button>
                     <button class="btn btn-edit" onclick="sys.editProduct(${p.id})">Edit</button>
                     <button class="btn btn-delete" onclick="sys.deleteProduct(${p.id})">Del</button>
                 </td>
@@ -279,25 +176,30 @@ class InventorySystem {
         `).join('') || '<tr><td colspan="7">No products.</td></tr>';
     }
 
-    renderReportsPage() {
-        const cats = [...new Set(this.products.map(p => p.category))];
-        document.getElementById('reportTable').innerHTML = cats.map(c => {
-            const group = this.products.filter(p => p.category === c);
-            const val = group.reduce((s, p) => s + (p.quantity * p.price), 0);
-            return `<tr><td><strong>${c}</strong></td><td>${group.length} items</td><td>₱ ${val.toFixed(2)}</td></tr>`;
-        }).join('');
+    renderPurchaseOrdersTable() {
+        document.getElementById('poTableBody').innerHTML = this.purchaseOrders.map(po => `
+            <tr>
+                <td>PO-${po.po_id}</td>
+                <td>${po.date_created.split(' ')[0]}</td>
+                <td><strong>${po.product_name}</strong></td>
+                <td>${po.supplier}</td>
+                <td>${po.order_qty}</td>
+                <td><span style="color: ${po.status === 'Pending' ? 'var(--warning)' : 'var(--success)'}">${po.status}</span></td>
+                <td>
+                    ${po.status === 'Pending' ? `<button class="btn" style="background-color: var(--info);" onclick="sys.receivePO(${po.po_id})">📥 Receive</button>` : '✔️'}
+                </td>
+            </tr>
+        `).join('') || '<tr><td colspan="7">No orders.</td></tr>';
     }
 
-    async deleteProduct(id) {
-        if(!confirm('Delete item?')) return;
-        try {
-            const res = await fetch('php/delete_product.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: id })
-            });
-            if((await res.json()).status === 'success') await this.fetchRealData();
-        } catch (err) { this.showToast("Error deleting.", "error"); }
+    // --- INVENTORY ACTIONS ---
+    sellProduct(id) {
+        const p = this.products.find(x => x.id == id);
+        this.sellingId = id;
+        document.getElementById('sellModalTitle').textContent = `Sell: ${p.name}`;
+        document.getElementById('currentStockDisplay').textContent = p.quantity;
+        document.getElementById('sellQuantity').max = p.quantity;
+        document.getElementById('sellModal').classList.add('show');
     }
 
     editProduct(id) {
@@ -305,13 +207,155 @@ class InventorySystem {
         this.editingId = id;
         document.getElementById('productName').value = p.name;
         document.getElementById('supplier').value = p.supplier;
-        document.getElementById('category').value = p.category;
+        document.getElementById('category').value = p.cat_id;
         document.getElementById('quantity').value = p.quantity;
         document.getElementById('price').value = p.price;
-        if(document.getElementById('description') && p.description) {
-            document.getElementById('description').value = p.description;
-        }
         document.getElementById('productModal').classList.add('show');
+    }
+
+    deleteProduct(id) {
+        const p = this.products.find(x => x.id == id);
+        this.deletingId = id;
+        document.getElementById('deleteProductName').textContent = p.name;
+        document.getElementById('deleteModal').classList.add('show');
+    }
+
+    receivePO(po_id) {
+        const po = this.purchaseOrders.find(x => x.po_id == po_id);
+        this.receivingPoId = po_id;
+        document.getElementById('receivePoName').textContent = po.product_name;
+        document.getElementById('receivePoModal').classList.add('show');
+    }
+
+    setupAppEventListeners() {
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.onclick = (e) => {
+                const page = e.currentTarget.getAttribute('data-page');
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+                document.getElementById(page + 'Page').style.display = 'block';
+            };
+        });
+
+        document.getElementById('searchInput').oninput = () => this.renderInventoryTable();
+        document.getElementById('categoryFilter').onchange = () => this.renderInventoryTable();
+
+        // Modal Form Handlers
+        document.getElementById('productForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('productName').value,
+                supplier: document.getElementById('supplier').value,
+                cat_id: parseInt(document.getElementById('category').value),
+                quantity: parseInt(document.getElementById('quantity').value),
+                price: parseFloat(document.getElementById('price').value),
+                owner: localStorage.getItem('currentUser')
+            };
+
+            const url = this.editingId ? 'php/update_product.php' : 'php/add_product.php';
+            const body = this.editingId ? {...data, id: this.editingId} : data;
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body)
+                });
+                if((await res.json()).status === 'success') {
+                    document.getElementById('productModal').classList.remove('show');
+                    await this.fetchRealData();
+                }
+            } catch (err) { this.showToast("Save failed", "error"); }
+        };
+
+        // Confirmation Actions
+        document.getElementById('confirmSellBtn').onclick = async () => {
+            const qty = parseInt(document.getElementById('sellQuantity').value);
+            try {
+                const res = await fetch('php/record_sale.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        product_id: this.sellingId,
+                        quantity: qty,
+                        username: localStorage.getItem('currentUser')
+                    })
+                });
+                if((await res.json()).status === 'success') {
+                    document.getElementById('sellModal').classList.remove('show');
+                    await this.fetchRealData();
+                }
+            } catch (err) { this.showToast("Sale failed", "error"); }
+        };
+
+        document.getElementById('confirmDeleteBtn').onclick = async () => {
+            try {
+                const res = await fetch('php/delete_product.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ id: this.deletingId })
+                });
+                if((await res.json()).status === 'success') {
+                    document.getElementById('deleteModal').classList.remove('show');
+                    await this.fetchRealData();
+                }
+            } catch (err) { this.showToast("Delete failed", "error"); }
+        };
+
+        document.getElementById('confirmReceivePoBtn').onclick = async () => {
+            try {
+                const res = await fetch('php/receive_po.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        po_id: this.receivingPoId,
+                        username: localStorage.getItem('currentUser')
+                    })
+                });
+                if((await res.json()).status === 'success') {
+                    document.getElementById('receivePoModal').classList.remove('show');
+                    await this.fetchRealData();
+                }
+            } catch (err) { this.showToast("Receive failed", "error"); }
+        };
+
+        // Closer Buttons
+        document.getElementById('openModalBtn').onclick = () => {
+            this.editingId = null;
+            document.getElementById('productForm').reset();
+            document.getElementById('productModal').classList.add('show');
+        };
+        document.getElementById('closeModalBtn').onclick = () => document.getElementById('productModal').classList.remove('show');
+        document.getElementById('closeSellModalBtn').onclick = () => document.getElementById('sellModal').classList.remove('show');
+        document.getElementById('closeDeleteModalBtn').onclick = () => document.getElementById('deleteModal').classList.remove('show');
+        document.getElementById('closePoModalBtn').onclick = () => document.getElementById('poModal').classList.remove('show');
+        document.getElementById('closeReceivePoModalBtn').onclick = () => document.getElementById('receivePoModal').classList.remove('show');
+
+        // PO Form
+        document.getElementById('openPoModalBtn').onclick = () => {
+            document.getElementById('poProductSelect').innerHTML = '<option value="" disabled selected>Select Product...</option>' + 
+                this.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            document.getElementById('poModal').classList.add('show');
+        };
+        document.getElementById('poForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                product_id: document.getElementById('poProductSelect').value,
+                quantity: document.getElementById('poQuantity').value
+            };
+            try {
+                const res = await fetch('php/create_po.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                if((await res.json()).status === 'success') {
+                    document.getElementById('poModal').classList.remove('show');
+                    await this.fetchRealData();
+                }
+            } catch (err) { this.showToast("Order failed", "error"); }
+        };
     }
 
     showToast(msg, type) {
