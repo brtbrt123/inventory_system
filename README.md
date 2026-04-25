@@ -8,7 +8,7 @@ To provide a professional README for your semester project, I have drafted a ver
 ## 🚀 Project Overview
 A robust, full-stack Inventory Management System designed to handle real-time stock tracking, automated purchase ordering, and visual inventory management. This project demonstrates the practical application of relational database principles, asynchronous data handling, and professional UI/UX design.
 
-<img width="1914" height="958" alt="image" src="https://github.com/user-attachments/assets/1c295be0-d4a1-40d6-ae4c-e8c36b910e87" />
+<img width="1916" height="963" alt="image" src="https://github.com/user-attachments/assets/fe4c468b-992c-4338-a7d3-d47e88fd7136" />
 
 
 
