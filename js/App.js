@@ -67,10 +67,16 @@ class InventorySystem {
                 this.api.getProducts(user),
                 this.api.getPOs(user)
             ]);
+            
+            // ADD THIS LINE TO DEBUG:
+            console.log("Products received from server:", prods);
+
             this.products = prods;
             this.purchaseOrders = pos;
             this.renderAll();
-        } catch (e) { this.ui.showToast("Data sync failed", "error"); }
+        } catch (e) { 
+            this.ui.showToast("Data sync failed", "error"); 
+        }
     }
 
     renderAll() {
@@ -86,9 +92,14 @@ class InventorySystem {
         if(document.getElementById('pendingPOCount')) {
             document.getElementById('pendingPOCount').textContent = this.purchaseOrders.filter(po => po.status === 'Pending').length;
         }
+        
+        // FIXED DASHBOARD VALUE FORMATTING
         if(document.getElementById('totalValue')) {
             const totalVal = this.products.reduce((sum, p) => sum + (p.quantity * p.price), 0);
-            document.getElementById('totalValue').textContent = `₱ ${totalVal.toFixed(2)}`;
+            document.getElementById('totalValue').textContent = `₱ ${totalVal.toLocaleString('en-PH', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            })}`;
         }
 
         this.ui.renderDashboardExtras(this.products, this.lowStockThreshold);
@@ -107,7 +118,7 @@ class InventorySystem {
     editProduct(id) {
         const form = document.getElementById('productForm');
         form.reset(); 
-        document.getElementById('productImage').value = ''; // Clear file input
+        document.getElementById('productImage').value = ''; 
         
         if (id) {
             const p = this.products.find(x => x.id == id);
@@ -152,7 +163,6 @@ class InventorySystem {
     async executeDelete() {
         try {
             const result = await this.api.deleteProduct(this.deletingId);
-            
             if (result.status === 'success') {
                 this.ui.showToast(result.message || "Product deleted!", 'success');
                 document.getElementById('deleteModal').classList.remove('show');
@@ -180,9 +190,7 @@ class InventorySystem {
             this.ui.showToast("No products to export.", "error");
             return;
         }
-        
         const headers = ["Product ID", "Product Name", "Supplier", "Current Stock", "Unit Price"];
-        
         const rows = this.products.map(p => [
             p.id, 
             `"${p.name}"`, 
@@ -190,7 +198,6 @@ class InventorySystem {
             p.quantity, 
             p.price
         ]);
-        
         const csvContent = "data:text/csv;charset=utf-8," 
             + headers.join(",") + "\n" 
             + rows.map(e => e.join(",")).join("\n");
@@ -200,10 +207,8 @@ class InventorySystem {
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", `Inventory_Export_${new Date().toISOString().split('T')[0]}.csv`);
         document.body.appendChild(link);
-        
         link.click();
         document.body.removeChild(link);
-        
         this.ui.showToast("Inventory exported successfully!", "success");
     }
 
@@ -254,11 +259,9 @@ class InventorySystem {
             profileUploadInput.onchange = async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-
                 const formData = new FormData();
                 formData.append('profile_pic', file);
                 formData.append('username', localStorage.getItem('currentUser'));
-
                 try {
                     const result = await this.api.uploadProfile(formData);
                     if (result.status === 'success') {
@@ -291,10 +294,8 @@ class InventorySystem {
         document.getElementById('confirmDeleteBtn').onclick = () => this.executeDelete();
         document.getElementById('confirmReceivePoBtn').onclick = () => this.executeReceivePo();
 
-        // --- NEW PRODUCT UPLOAD LOGIC ---
         document.getElementById('productForm').onsubmit = async (e) => {
             e.preventDefault();
-            
             const formData = new FormData();
             formData.append('name', document.getElementById('productName').value);
             formData.append('supplier', document.getElementById('supplier').value);
@@ -310,13 +311,10 @@ class InventorySystem {
 
             let result;
             if (this.editingId) {
-                // Keep edit logic as text-only JSON for now
-                const data = Object.fromEntries(formData.entries());
-                data.id = this.editingId;
-                delete data.product_image; // Remove file object before sending as JSON
-                result = await this.api.updateProduct(data);
+                formData.append('id', this.editingId);
+                // UPDATED TO USE MULTIPART UPDATE METHOD
+                result = await this.api.updateProductWithImage(formData);
             } else {
-                // Call the new API method that handles FormData
                 result = await this.api.addProductWithImage(formData);
             }
 
@@ -326,7 +324,7 @@ class InventorySystem {
                 document.getElementById('productImage').value = ''; 
                 await this.fetchData();
             } else {
-                this.ui.showToast(result.message || "Error adding product", 'error');
+                this.ui.showToast(result.message || "Error saving product", 'error');
             }
         };
 

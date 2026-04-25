@@ -23,7 +23,7 @@ export class UI {
                 <td><strong>${p.name}</strong></td>
                 <td>${p.supplier}</td>
                 <td>${p.quantity}</td>
-                <td>₱ ${parseFloat(p.price).toFixed(2)}</td>
+                <td>₱ ${parseFloat(p.price).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 <td><span class="${p.quantity < threshold ? 'low-stock' : 'good-stock'}">${p.quantity < threshold ? 'Low' : 'Good'}</span></td>
                 <td>
                     <button class="btn" style="background-color: var(--success);" onclick="window.sys.sellProduct(${p.id})"><i class="fa-solid fa-tag"></i> Sell</button>
@@ -99,7 +99,7 @@ export class UI {
                 <tr>
                     <td><strong>${catNameMap[cid] || 'Category ' + cid}</strong></td>
                     <td>${catStats[cid].count} unique items</td>
-                    <td>₱ ${catStats[cid].value.toFixed(2)}</td>
+                    <td>₱ ${catStats[cid].value.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 </tr>
             `).join('');
 
