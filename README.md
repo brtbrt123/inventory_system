@@ -47,9 +47,3 @@ This project serves as a comprehensive demonstration of 1st-semester database co
 * **Group 8 - Computer Science Students**
 * *Laguna, Philippines*
 
----
-
-### How to use this:
-1.  Create a file named **`README.md`** in your project's main folder.
-2.  Paste the text above inside.
-3.  When you upload this to **GitHub** or present it to your professor, it will look like a professional industry-level project!
