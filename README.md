@@ -39,7 +39,7 @@ This project serves as a comprehensive demonstration of 1st-semester database co
 
 ## 🔧 Installation & Setup
 1.  Clone the repository to your local server directory (e.g., `htdocs` for XAMPP).
-2.  Import the provided `cabuyao_inventory_grp8.sql` dump into your **phpMyAdmin**.
+2.  Import the provided `inventory_system.sql` dump into your **phpMyAdmin**.
 3.  Ensure your `db_connect.php` credentials match your local environment.
 4.  Launch `index.html` via `localhost`.
 
