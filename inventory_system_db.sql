@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 25, 2026 at 04:13 AM
+-- Generation Time: Apr 25, 2026 at 11:42 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -78,7 +78,12 @@ INSERT INTO `products` (`id`, `image_path`, `name`, `supplier`, `category`, `qua
 (8, NULL, 'Phone', 'TETE', 'Electronics', 1, 1.00, '', '11', '2026-04-23 02:25:14', '2026-04-23 02:25:14', NULL, NULL),
 (12, NULL, 'Phone', 'ErgoWorks', '', 10, 12.00, '', NULL, '2026-04-24 14:48:18', '2026-04-24 14:48:18', 'bril', 1),
 (13, NULL, 'keyboard', 'aegis', '', 1, 12.00, '', NULL, '2026-04-25 01:15:13', '2026-04-25 01:15:13', 'bril', 3),
-(14, NULL, 'keyboard', 'ErgoWorks', '', 22, 1111.00, 'admin', NULL, '2026-04-25 01:57:57', '2026-04-25 02:01:08', NULL, 3);
+(16, NULL, 'microwave', 'ErgoWorks', '', 0, 333.00, 'admin', NULL, '2026-04-25 02:26:33', '2026-04-25 07:59:19', NULL, 2),
+(19, 'img/prod_1777097006_634.png', 'keyboard', 'tiktok', '', 9, 100.00, 'bril', NULL, '2026-04-25 06:03:26', '2026-04-25 07:58:58', NULL, 3),
+(20, 'img/prod_1777109831_975.png', 'Table', 'IKEA', '', 120, 1000.00, 'bril', NULL, '2026-04-25 09:37:11', '2026-04-25 09:39:10', NULL, 4),
+(21, 'img/prod_1777110001_348.png', 'Iphone 17', 'APPLE', '', 100, 70000.00, 'bril', NULL, '2026-04-25 09:40:01', '2026-04-25 09:40:01', NULL, 1),
+(22, 'img/prod_1777110037_360.png', 'Pen', 'National Book store', '', 500, 50.00, 'bril', NULL, '2026-04-25 09:40:37', '2026-04-25 09:40:37', NULL, 2),
+(23, 'img/prod_1777110088_293.png', 'CH-Necklace', 'Chrome Hearts', '', 1000, 500.00, 'bril', NULL, '2026-04-25 09:41:28', '2026-04-25 09:41:28', NULL, 3);
 
 -- --------------------------------------------------------
 
@@ -99,7 +104,7 @@ CREATE TABLE `purchase_orders` (
 --
 
 INSERT INTO `purchase_orders` (`po_id`, `product_id`, `order_qty`, `status`, `date_created`) VALUES
-(5, 14, 10, 'Received', '2026-04-25 02:01:06');
+(6, 19, 10, 'Received', '2026-04-25 06:03:49');
 
 -- --------------------------------------------------------
 
@@ -121,7 +126,8 @@ CREATE TABLE `stock_history` (
 --
 
 INSERT INTO `stock_history` (`history_id`, `product_id`, `user_handle`, `quantity_changed`, `action_type`, `date_recorded`) VALUES
-(12, 14, 'admin', 10, 'RESTOCK', '2026-04-25 02:01:08');
+(15, 19, 'bril', 10, 'RESTOCK', '2026-04-25 06:03:51'),
+(16, 16, 'admin', -9, 'SALE', '2026-04-25 07:59:19');
 
 -- --------------------------------------------------------
 
@@ -146,7 +152,7 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `username`, `password`, `role`, `created_at`, `fullname`, `profile_pic`) VALUES
 (1, 'admin', 'password', 'admin', '2026-04-22 13:55:35', NULL, 'img/admin_1777081151.png'),
 (2, 'student', '12345', 'staff', '2026-04-22 13:55:35', NULL, 'profile_C.jpg'),
-(3, 'bril', '123', 'admin', '2026-04-23 02:15:59', 'justinbril abarquez', 'img/bril_1777080827.png');
+(3, 'bril', '123', 'admin', '2026-04-23 02:15:59', 'justinbril abarquez', 'img/bril_1777097217.png');
 
 --
 -- Indexes for dumped tables
@@ -201,19 +207,19 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `purchase_orders`
 --
 ALTER TABLE `purchase_orders`
-  MODIFY `po_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `po_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `stock_history`
 --
 ALTER TABLE `stock_history`
-  MODIFY `history_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `history_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `users`
